@@ -1,3 +1,0 @@
-[submodule "DX12test/DirectX-Headers"]
-	path = DX12test/DirectX-Headers
-	url = https://github.com/microsoft/DirectX-Headers
