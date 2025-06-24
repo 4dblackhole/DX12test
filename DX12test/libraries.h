@@ -1,8 +1,22 @@
 #pragma once
 
 //Windows
-#include <Windows.h>
+#include <Windowsx.h>
 
+//DirectX
+#include <D2D1_1.h>
+#include <dwrite.h>
+
+#include <d3d12.h>
+#include <d3dcompiler.h>
+#include <DirectXMath.h>
+#include <dxgi1_6.h>
+#include <dxgidebug.h>
+#include <dxerr.h>
+#include <d3dx12.h>
+#include <DirectXPackedVector.h>
+#include <DirectXColors.h>
+#include <DirectXCollision.h>
 
 //STL
 #include <algorithm>
@@ -30,5 +44,4 @@
 #include <queue>
 
 #include <iostream>
-#include <iomanip>
 using namespace std;

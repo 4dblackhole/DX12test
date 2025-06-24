@@ -13,12 +13,39 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="D3DApp">
+      <UniqueIdentifier>{914729eb-dd72-4e6e-b804-2f724ef4e8a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System">
+      <UniqueIdentifier>{cf6fcdc9-cde4-4d52-99f6-3956590d73db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{dec10d66-b72a-4f5d-828f-8497dc4ce08a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="libraries.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DApp\D3DApp.h">
+      <Filter>D3DApp</Filter>
+    </ClInclude>
+    <ClInclude Include="System\GameTimer.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\D3DUtil.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\MathHelper.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DApp\InitDirect3DApp.h">
+      <Filter>D3DApp</Filter>
+    </ClInclude>
+    <ClInclude Include="types.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -28,6 +55,21 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DApp\D3DApp.cpp">
+      <Filter>D3DApp</Filter>
+    </ClCompile>
+    <ClCompile Include="System\GameTimer.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\D3DUtil.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\MathHelper.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DApp\InitDirect3DApp.cpp">
+      <Filter>D3DApp</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
