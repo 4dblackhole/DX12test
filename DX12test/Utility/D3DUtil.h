@@ -9,6 +9,8 @@
 
 extern const int gNumFrameResources;
 
+void LogComReferenceLeak();
+
 inline void d3dSetDebugName(IDXGIObject* obj, const char* name)
 {
     if (obj)
@@ -41,7 +43,7 @@ inline std::wstring AnsiToWString(const std::string& str)
 class d3dUtil
 {
 public:
-    static UINT CalcConstantBufferByteSize(UINT byteSize)
+    static inline constexpr UINT CalcConstantBufferByteSize(UINT byteSize) noexcept
     {
         // 상수 버퍼의 크기는 하드웨어의 최소 메모리 할당 크기에 배수가 되어야 한다.
         // 그러므로 256배의 수로 올림 해야한다. 이것을 255을 더하고
@@ -228,5 +230,5 @@ struct Texture
 #endif
 
 #ifndef ReleaseCom
-#define ReleaseCom(x) { if(x){ x->Release(); x = 0; } }
+#define ReleaseCom(x) { if(x){ (x)->Release(); x = 0; } }
 #endif

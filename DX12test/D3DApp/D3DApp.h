@@ -62,9 +62,6 @@ protected:
     void LogAdapterOutputs(IDXGIAdapter* adapter);
     void LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format);
 
-private:
-    //void LogComReferenceLeak();
-
 protected:
     static D3DApp* mApp;
 
@@ -84,19 +81,21 @@ protected:
     // 게임 시간과 델타 시간을 측정하기 위해 사용합니다 (§4.4).
     GameTimer mTimer;
 
+    static constexpr UINT FrameCount = 2;
+
+    UINT mFrameIndex = 0;
     ComPtr<IDXGIFactory7>  mdxgiFactory;
     ComPtr<IDXGISwapChain4> mSwapChain;
     ComPtr<ID3D12Device>   md3dDevice;
 
     ComPtr<ID3D12Fence> mFence;
-    UINT64 mCurrentFence = 0;
+    UINT64 mFenceValues[FrameCount]{};
 
     ComPtr<ID3D12CommandQueue>        mCommandQueue;
-    ComPtr<ID3D12CommandAllocator>    mDirectCmdListAlloc;
+    ComPtr<ID3D12CommandAllocator>    mDirectCmdListAlloc[FrameCount];
     ComPtr<ID3D12GraphicsCommandList> mCommandList;
 
-    static constexpr int SwapChainBufferCount = 2;
-    ComPtr<ID3D12Resource> mSwapChainBuffer[SwapChainBufferCount];
+    ComPtr<ID3D12Resource> mSwapChainBuffer[FrameCount];
     ComPtr<ID3D12Resource> mDepthStencilBuffer;
 
     ComPtr<ID3D12DescriptorHeap> mRtvHeap;

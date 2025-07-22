@@ -22,6 +22,9 @@
     <Filter Include="Utility">
       <UniqueIdentifier>{dec10d66-b72a-4f5d-828f-8497dc4ce08a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{89d3b6e8-926a-4e96-ad4c-8e66b507a3d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -42,11 +45,14 @@
     <ClInclude Include="Utility\MathHelper.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="D3DApp\InitDirect3DApp.h">
-      <Filter>D3DApp</Filter>
-    </ClInclude>
     <ClInclude Include="types.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DApp\BoxApp.h">
+      <Filter>D3DApp</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\UploadBuffer.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -68,8 +74,13 @@
     <ClCompile Include="Utility\MathHelper.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="D3DApp\InitDirect3DApp.cpp">
+    <ClCompile Include="D3DApp\BoxApp.cpp">
       <Filter>D3DApp</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Shader\color.hlsl">
+      <Filter>Shader</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

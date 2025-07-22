@@ -123,3 +123,15 @@ std::wstring DxException::ToString() const
 
     return FunctionName + L" failed in " + Filename + L"; line " + std::to_wstring(LineNumber) + L"; error: " + msg;
 }
+
+void LogComReferenceLeak()
+{
+#if defined(DEBUG) | defined(_DEBUG)
+    IDXGIDebug1* dxgiDebug;
+    if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug))))
+    {
+        dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
+    }
+    ReleaseCom(dxgiDebug);
+#endif // _DEBUG
+}

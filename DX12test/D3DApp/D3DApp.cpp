@@ -32,33 +32,21 @@ D3DApp::~D3DApp()
     if (md3dDevice != nullptr)
         FlushCommandQueue();
 
-    //mdxgiFactory.Reset();
-    //mFence.Reset();
-    //mCommandQueue.Reset();
-    //mDirectCmdListAlloc.Reset();
-    //mCommandList.Reset();
-    //mDepthStencilBuffer.Reset();
-    //mRtvHeap.Reset();
-    //mDsvHeap.Reset();
-    //for (auto& it : mSwapChainBuffer) it.Reset();
-    //mSwapChain.Reset();
-    //md3dDevice.Reset();
+    mdxgiFactory.Reset();
+    mFence.Reset();
+    mCommandQueue.Reset();
+    for (auto& it : mDirectCmdListAlloc) it.Reset();
+    mCommandList.Reset();
+    mDepthStencilBuffer.Reset();
+    mRtvHeap.Reset();
+    mDsvHeap.Reset();
+    for (auto& it : mSwapChainBuffer) it.Reset();
+    mSwapChain.Reset();
+    md3dDevice.Reset();
     
-    //LogComReferenceLeak();
+    LogComReferenceLeak();
 }
-/*
-void D3DApp::LogComReferenceLeak()
-{
-#if defined(DEBUG) | defined(_DEBUG)
-    IDXGIDebug1* dxgiDebug;
-    if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug))))
-    {
-        dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
-    }
-    ReleaseCom(dxgiDebug);
-#endif // _DEBUG
-}
-*/
+
 D3DApp* D3DApp::GetApp()
 {
     return mApp;
@@ -133,11 +121,8 @@ int D3DApp::Run()
 
 bool D3DApp::Initialize()
 {
-    if (!InitMainWindow())
-        return false;
-
-    if (!InitDirect3D())
-        return false;
+    if (!InitMainWindow()) return false;
+    if (!InitDirect3D()) return false;
 
     // 초기 리사이즈 처리를 합니다.
     OnResize();
@@ -283,7 +268,7 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 void D3DApp::CreateRtvAndDsvDescriptorHeaps()
 {
     D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
-    rtvHeapDesc.NumDescriptors = SwapChainBufferCount;
+    rtvHeapDesc.NumDescriptors = FrameCount;
     rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
     rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     rtvHeapDesc.NodeMask = 0; 
@@ -303,28 +288,30 @@ void D3DApp::OnResize()
 {
     assert(md3dDevice);
     assert(mSwapChain);
-    assert(mDirectCmdListAlloc);
+
+    auto& currentCmdAlloc = mDirectCmdListAlloc[mFrameIndex];
+    assert(currentCmdAlloc);
 
     // 어떤 리소스가 변경되기 전에 플러시합니다.
     FlushCommandQueue();
 
-    ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
+    ThrowIfFailed(mCommandList->Reset(currentCmdAlloc.Get(), nullptr));
 
     // 다시 생성하기 전에 이전에 생성된 리소스들을 해제합니다.
-    for (int i = 0; i < SwapChainBufferCount; ++i)
+    for (int i = 0; i < FrameCount; ++i)
         mSwapChainBuffer[i].Reset();
 
     mDepthStencilBuffer.Reset();
 
     // 스왑체인의 크기를 변경합니다.
     ThrowIfFailed(mSwapChain->ResizeBuffers(
-        SwapChainBufferCount,
+        FrameCount,
         mClientWidth, mClientHeight,
         mBackBufferFormat,
         DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
 
     CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
-    for (UINT i = 0; i < SwapChainBufferCount; ++i)
+    for (UINT i = 0; i < FrameCount; ++i)
     {
         ThrowIfFailed(mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffer[i])));
         md3dDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
@@ -528,14 +515,18 @@ void D3DApp::CreateCommandObjects()
     queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
     ThrowIfFailed(md3dDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&mCommandQueue)));
 
-    ThrowIfFailed(md3dDevice->CreateCommandAllocator(
-        D3D12_COMMAND_LIST_TYPE_DIRECT,
-        IID_PPV_ARGS(mDirectCmdListAlloc.GetAddressOf())));
+    for (auto& it : mDirectCmdListAlloc)
+    {
+        ThrowIfFailed(md3dDevice->CreateCommandAllocator(
+            D3D12_COMMAND_LIST_TYPE_DIRECT,
+            IID_PPV_ARGS(it.GetAddressOf())));
+    }
 
+    auto& currentCmdAlloc = mDirectCmdListAlloc[mFrameIndex];
     ThrowIfFailed(md3dDevice->CreateCommandList(
         0,
         D3D12_COMMAND_LIST_TYPE_DIRECT,
-        mDirectCmdListAlloc.Get(),
+        currentCmdAlloc.Get(),
         nullptr,
         IID_PPV_ARGS(mCommandList.GetAddressOf())));
 
@@ -558,7 +549,7 @@ void D3DApp::CreateSwapChain()
     sd.SampleDesc.Count = m4xMsaaState ? 4 : 1;
     sd.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
     sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.BufferCount = SwapChainBufferCount;
+    sd.BufferCount = FrameCount;
     sd.Scaling = DXGI_SCALING_NONE;
     sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
@@ -578,26 +569,29 @@ void D3DApp::CreateSwapChain()
 
 void D3DApp::FlushCommandQueue()
 {
-    // 펜스 값을 증가시켜서 커맨드들이 새 펜스 포인트에 귀속되도록 합니다.
-    mCurrentFence++;
-
     // 커맨드들의 처리는 GPU에서 진행되기 때문에 언제 커맨드들이 처리됬는지를 CPU에서 알기 힘듭니다.
     // 그러므로 모든 커맨드가 처리됬을 때 새 펜스 지점을 설정하는 인스트럭션을 커맨드 큐에 추가합니다.
     // Signal()을 호출하기 전에 제출한 커맨드들이 처리되기 전까지 새 펜스 지점은 설정되지 않습니다.
-    ThrowIfFailed(mCommandQueue->Signal(mFence.Get(), mCurrentFence));
+    const UINT64 currentFenceValue = mFenceValues[mFrameIndex];
+    ThrowIfFailed(mCommandQueue->Signal(mFence.Get(), currentFenceValue));
+
+    mFrameIndex = mSwapChain->GetCurrentBackBufferIndex();
 
     // GPU가 새 펜스 지점까지의 명령들을 완료할 때까지 기다립니다.
-    if (mFence->GetCompletedValue() < mCurrentFence)
+    if (mFence->GetCompletedValue() < mFenceValues[mFrameIndex])
     {
         HANDLE eventHandle = CreateEventEx(nullptr, nullptr, 0, EVENT_ALL_ACCESS);
 
         // GPU가 새 펜스 지점에 도달했으면 이벤트를 발동시킵니다.
-        ThrowIfFailed(mFence->SetEventOnCompletion(mCurrentFence, eventHandle));
+        ThrowIfFailed(mFence->SetEventOnCompletion(mFenceValues[mFrameIndex], eventHandle));
 
         // GPU가 새 펜스를 설정하고 이벤트가 발동될때까지 기다립니다.
         WaitForSingleObject(eventHandle, INFINITE);
         CloseHandle(eventHandle);
     }
+
+    // 펜스 값을 증가시켜서 커맨드들이 새 펜스 포인트에 귀속되도록 합니다.
+    mFenceValues[mFrameIndex] = currentFenceValue + 1;
 }
 
 ID3D12Resource* D3DApp::CurrentBackBuffer() const
@@ -625,11 +619,12 @@ void D3DApp::CalculateFrameStats()
 
     ++frameCnt;
 
+    static constexpr float timeSlice = 1.0f;
     // 1초 동안의 평균을 계산합니다.
-    if ((mTimer.TotalTime() - timeElapsed >= 1.0f))
+    if ((mTimer.TotalTime() - timeElapsed >= timeSlice))
     {
-        float fps = (float)frameCnt; // fps = frameCnt / 1;
-        float mspf = 1000.0f / fps;
+        const float fps = (float)frameCnt / timeSlice; // fps = frameCnt / timeStep;
+        const float mspf = 1000.0f / fps;
 
         wstring fpsStr = to_wstring(fps);
         wstring mpsfStr = to_wstring(mspf);
@@ -642,7 +637,7 @@ void D3DApp::CalculateFrameStats()
 
         // 다음 평균을 위해 초기화 합니다.
         frameCnt = 0;
-        timeElapsed += 1.0f;
+        timeElapsed += timeSlice;
     }
 }
 

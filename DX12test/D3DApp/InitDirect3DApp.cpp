@@ -57,10 +57,10 @@ void InitDirect3DApp::Draw(const GameTimer& gt)
     mCommandList->RSSetScissorRects(1, &mScissorRect);
 
     // 백 버퍼와 뎁스 버퍼를 클리어 합니다.
-    const auto dsv = DepthStencilView();
-    const auto currentBackBufferView = CurrentBackBufferView();
-    mCommandList->ClearRenderTargetView(CurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
-    mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+    const auto& dsv = DepthStencilView();
+    const auto& currentBackBufferView = CurrentBackBufferView();
+    mCommandList->ClearRenderTargetView(currentBackBufferView, Colors::AliceBlue, 0, nullptr);
+    mCommandList->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
     // 어디에 렌더링을 할지 설정합니다.
     mCommandList->OMSetRenderTargets(1, &currentBackBufferView, true, &dsv);

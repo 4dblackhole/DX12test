@@ -159,18 +159,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="D3DApp\BoxApp.h" />
     <ClInclude Include="D3DApp\D3DApp.h" />
-    <ClInclude Include="D3DApp\InitDirect3DApp.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="libraries.h" />
     <ClInclude Include="System\GameTimer.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="Utility\D3DUtil.h" />
     <ClInclude Include="Utility\MathHelper.h" />
+    <ClInclude Include="Utility\UploadBuffer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="D3DApp\BoxApp.cpp" />
     <ClCompile Include="D3DApp\D3DApp.cpp" />
-    <ClCompile Include="D3DApp\InitDirect3DApp.cpp" />
     <ClCompile Include="framework.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -181,6 +182,11 @@
     <ClCompile Include="System\GameTimer.cpp" />
     <ClCompile Include="Utility\D3DUtil.cpp" />
     <ClCompile Include="Utility\MathHelper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Shader\color.hlsl">
+      <FileType>Document</FileType>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,5 @@
 #include "framework.h"
-#include "D3DApp/InitDirect3DApp.h"
+#include "D3DApp/BoxApp.h"
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -13,7 +13,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
     try
     {
-        InitDirect3DApp theApp(hInstance);
+        BoxApp theApp(hInstance);
         if (!theApp.Initialize()) return 0;
         return theApp.Run();
     }
